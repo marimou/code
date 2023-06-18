@@ -1,0 +1,65 @@
+from keras.preprocessing.image import ImageDataGenerator
+import numpy as np
+from skimage import io
+import os
+from PIL import Image
+
+# Construct an instance of the ImageDataGenerator class
+# Pass the augmentation parameters through the constructor. 
+
+datagen = ImageDataGenerator(
+        rotation_range=45,     #Random rotation between 0 and 45
+        width_shift_range=0.2,   #% shift
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='reflect', cval=125)    #Also try nearest, constant, reflect, wrap
+image_directory = 'good/'
+SIZE = 224
+dataset = []
+print("nnnnn")
+my_images = os.listdir(image_directory)
+for i, image_name in enumerate(my_images):
+    print("ee")
+    if (image_name.split('.')[1] == 'jpg'):
+        image = io.imread(image_directory + image_name)
+        image = Image.fromarray(image, 'RGB')
+        image = image.resize((SIZE,SIZE))
+        dataset.append(np.array(image))
+
+x = np.array(dataset)
+i = 0
+for batch in datagen.flow(x, batch_size=800,
+                          save_to_dir='augmented_good',
+                          save_prefix='aug',
+                          save_format='jpg'):
+    i += 1
+    print(batch)
+    if i > 3:
+        break  # otherwise the generator would loop indefinitely
+
+
+image_directory = 'not good/'
+SIZE = 224
+dataset = []
+
+my_images = os.listdir(image_directory)
+for i, image_name in enumerate(my_images):
+    if (image_name.split('.')[1] == 'jpg'):
+        image = io.imread(image_directory + image_name)
+        image = Image.fromarray(image, 'RGB')
+        image = image.resize((SIZE,SIZE))
+        dataset.append(np.array(image))
+
+x = np.array(dataset)
+
+i = 0
+for batch in datagen.flow(x, batch_size=800,
+                          save_to_dir='augmentation_not good',
+                          save_prefix='aug',
+                          save_format='jpg'):
+    i += 1
+    print(batch)
+    if i > 3:
+        break  #
